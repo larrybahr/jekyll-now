@@ -25,13 +25,14 @@ use sar to find the computer that is slowing things down
 
 First thing to do when you are stuck in a traffic jam is pull out Google Maps to see how long you will be stuck. Unfortunatly, Google Maps does not have a map of our network yet (it is only a matter of time until they index the whole world), so the next best thing is to use [sar](https://linux.die.net/man/1/sar). By running ```sar -n DEV 1``` (or ```sar -n ALL 1 100``` on CentOs 5) on all the servers in the chain and trying to load the webpage on the webserver.
 
-[sar test](![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/sar-test.png))
+![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/sar-test.png)
 
 # Pimp My Ride (Computer Hardware)
 find if the network card is gigabit
 
 # Do We Need Another Lane? (Throughput)
 Throughput
+
 ```shell
 iperf -s -p 6284
 iperf -c r7601246.rva.reyrey.net -p 6284 -t 60
@@ -39,11 +40,11 @@ iperf -c r7601246.rva.reyrey.net -p 6284 -t 60
 
 # Are We There Yet? (Latency)
 Latency and Jitter
+
 ```shell
 sockperf server -p 6284 --tcp
 sockperf under-load -i 10.2.10.14 -p 6284 -t 60 --tcp
 sockperf under-load -i 198.19.31.15 -p 6284 -t 20 --tcp --full-log /home/uccop/bahrlarr/jitter.csv
-
 ```
 
 # Are We Lost? (Dropped Packet)
