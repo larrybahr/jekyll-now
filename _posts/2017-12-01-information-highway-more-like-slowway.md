@@ -2,9 +2,9 @@
 layout: post
 title: Information Highway, More Like Slowway
 ---
-# Intro
-It has happened to all of us. You are driving down the Highway going the speed limit (or maybe a lot faster) when you come up on a slow down. You try to look ahead to see what is going on, but you cannot see anything. After 15 minutes of going 5 mph, traffic finally picks up. But wait! There was nothing causing the slow down? This is the problem I was running into after a new production web server was only serving content at dial up speeds. This article will walk through an overview of the process I took to find the slow down. 
+It has happened to all of us. You are driving down the Highway going the speed limit (or maybe a lot faster) when you come up on a slow down. You try to look ahead to see what is going on, but you cannot see anything. After 15 minutes, traffic finally picks up. But wait! I did not see anything causing the slow down! So why was traffic so slow? This is the problem I was running into after a new production web server was serving content at dial up speeds despite it working flawlessly in the lab. This article will walk through an overview of the process I took to find the slow down. 
 
+# Brief Background
 After weeks of develupment on a new proxy for our webserver, it was time for it to move to production. I exported the virtual machine and send the file to IT to be imported on one of the production servers. The next day I was informed by my suppervisor that the new proxy was unusably slow! As most programmers would do, I assumed that it could not be my code and explained I had a working example in the develupment lab. After a quick demo my supervisor was covinced it was not our issue and email IT asking them to fix the networking issue. With in a hour he got a reply stating that a diagnostic was ran and found no issues on their end so it must be our fault. So now our team was in the middle of the blame game with the clock ticking down to the new proxy launch date. We did not have time to argue. We needed to pin point the issue as much as possible and provide indisputable evidence!
 
 Here is a general map of the setup:
@@ -28,7 +28,15 @@ First thing to do when you are stuck in a traffic jam is pull out Google Maps to
 ![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/sar-test.png)
 
 # Pimp My Ride (Computer Hardware)
-find if the network card is gigabit
+After a quick test it appeared that the private proxy server was slowing things down. Knowing that the lab server was also sending traffic through the private proxy server, I knew it was unlikly an issue with the hardware. A quick command quickly confirmed my reservations on blame. NOTE: I also found many other useful commands at https://www.tecmint.com/commands-to-collect-system-and-hardware-information-in-linux/
+
+```shell
+lspci
+```
+
+![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/hardware-test.png)
+
+At this point I had found the area the slow down was in and confirmed that the servers on either end were capable higher speed transfers. That means the only culprit left is the VPN. But what exaclty is going wrong?
 
 # Do We Need Another Lane? (Throughput)
 Throughput
