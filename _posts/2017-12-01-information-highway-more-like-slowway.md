@@ -30,9 +30,9 @@ First thing to do when you are stuck in a traffic jam is pull out Google Maps to
 # Pimp My Ride (Computer Hardware)
 After a quick test it appeared that the private proxy server was slowing things down. Knowing that the lab server was also sending traffic through the private proxy server, I knew it was unlikly an issue with the hardware. A quick command quickly confirmed my reservations on blame. NOTE: I also found many other useful commands at https://www.tecmint.com/commands-to-collect-system-and-hardware-information-in-linux/
 
-```shell
+{% highlight shell %}
 lspci
-```
+{% endhighlight %}
 
 ![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/hardware-test.png)
 
