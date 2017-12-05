@@ -41,19 +41,26 @@ At this point I had found the area the slow down was in and confirmed that the s
 # Do We Need Another Lane? (Throughput)
 Throughput
 
-```shell
+{% highlight shell %}
+# Run on server
 iperf -s -p 6284
+
+# Run on client
 iperf -c r7601246.rva.reyrey.net -p 6284 -t 60
-```
+{% endhighlight %}
 
 # Are We There Yet? (Latency)
 Latency and Jitter
 
-```shell
+{% highlight shell %}
+# Run on server
 sockperf server -p 6284 --tcp
+
+# Run on client
 sockperf under-load -i 10.2.10.14 -p 6284 -t 60 --tcp
-sockperf under-load -i 198.19.31.15 -p 6284 -t 20 --tcp --full-log /home/uccop/bahrlarr/jitter.csv
-```
+# --full-log to print everything to file
+# sockperf under-load -i 198.19.31.15 -p 6284 -t 20 --tcp --full-log /home/uccop/bahrlarr/jitter.csv
+{% endhighlight %}
 
 # Are We Lost? (Dropped Packet)
 packet loss, QoS
