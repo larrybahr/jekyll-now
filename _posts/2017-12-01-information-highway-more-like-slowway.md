@@ -18,42 +18,59 @@ Some things to note about the enviornment:
 * While I cannot see all the network cabling I can assume it is capable of Gigabit speeds
 
 # TL;DR
-You can use [sar](https://linux.die.net/man/1/sar), [iperf](https://iperf.fr/), [sockperf](https://github.com/Mellanox/sockperf) to help identify slow downs in a network.
+You can use [sar](https://linux.die.net/man/1/sar), [iperf](https://iperf.fr/), [sockperf](https://github.com/Mellanox/sockperf), and [tcpdump](https://linux.die.net/man/8/tcpdump)/[Wireshark](https://www.wireshark.org/) to help identify slow downs in a network.
 
 # How Many Miles is this Slow Down! (Find the BottleNeck)
 use sar to find the computer that is slowing things down
 
-First thing to do when you are stuck in a traffic jam is pull out Google Maps to see how long you will be stuck. Unfortunatly, Google Maps does not have a map of our network yet (it is only a matter of time until they index the whole world), so the next best thing is to use [sar](https://linux.die.net/man/1/sar). By running ```sar -n DEV 1``` (or ```sar -n ALL 1 100``` on CentOs 5) on all the servers in the chain and trying to load the webpage on the webserver.
+First thing to do when you are stuck in a traffic jam is pull out Google Maps to see how long you will be stuck. Unfortunatly, Google Maps does not have a map of our network yet (it is only a matter of time until they index the whole world), so the next best thing is to use [sar](https://linux.die.net/man/1/sar). I ran sar on all the servers in the chain and trying to load the webpage on the webserver.
+
+{% highlight shell %}
+sar -n DEV 1 # or sar -n ALL 1 100 on CentOs 5
+{% endhighlight %}
 
 ![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/sar-test.png)
 
 # Pimp My Ride (Computer Hardware)
 After a quick test it appeared that the private proxy server was slowing things down. Knowing that the lab server was also sending traffic through the private proxy server, I knew it was unlikly an issue with the hardware. A quick command quickly confirmed my reservations on blame. NOTE: I also found many other useful commands at https://www.tecmint.com/commands-to-collect-system-and-hardware-information-in-linux/
 
-```shell
+{% highlight shell %}
 lspci
-```
+{% endhighlight %}
 
 ![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/hardware-test.png)
 
-At this point I had found the area the slow down was in and confirmed that the servers on either end were capable higher speed transfers. That means the only culprit left is the VPN. But what exaclty is going wrong?
+At this point I had found the area the slow down was in and confirmed that the servers on either side were capable higher speed transfers. That means the only culprit left is the VPN. But what exaclty is going wrong?
 
 # Do We Need Another Lane? (Throughput)
-Throughput
+When I see a car accident, I usually wish there was an additional lane to make up for the bottle neck. With that in mind, the first thing I thought to check was the size of the pipe. Looks like it is time to fire up [iperf](https://iperf.fr/).
 
-```shell
+{% highlight shell %}
+# Run on server
 iperf -s -p 6284
+
+# Run on client
 iperf -c r7601246.rva.reyrey.net -p 6284 -t 60
-```
+{% endhighlight %}
+
+![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/iperf-test.png)
+
+While far from great, 1.3 Mbits/sec should be plenty for my sub 500kb total file size. I decided this was not my current issue and to move on to the next test after looking at these results and making a note to talk to managment about increaseing the pipe size.
 
 # Are We There Yet? (Latency)
-Latency and Jitter
+The cause of a slow down could also be from drivers quick to slow down, but slow to speed back up (aka network latency). Ping is usually the perfect tool for the job, but our VPN only had port 6284 with TCP open so sockperf to the rescue.
 
-```shell
+{% highlight shell %}
+# Run on server
 sockperf server -p 6284 --tcp
+
+# Run on client
 sockperf under-load -i 10.2.10.14 -p 6284 -t 60 --tcp
-sockperf under-load -i 198.19.31.15 -p 6284 -t 20 --tcp --full-log /home/uccop/bahrlarr/jitter.csv
-```
+# --full-log to print everything to file
+# sockperf under-load -i 198.19.31.15 -p 6284 -t 20 --tcp --full-log /home/uccop/bahrlarr/jitter.csv
+{% endhighlight %}
+
+![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/sockperf-test.png)
 
 # Are We Lost? (Dropped Packet)
 packet loss, QoS
