@@ -1,0 +1,14 @@
+# Regex cheat sheet - https://www.debuggex.com/cheatsheet/regex/pcre
+# Nginx map documentation - http://nginx.org/en/docs/http/ngx_http_map_module.html
+https://serverfault.com/questions/760380/how-to-specify-several-variables-in-the-map-directive-of-nginx
+
+issue 1
+	error:
+		# service openresty configtest
+		nginx: [emerg] unexpected "{" in /ucc/http/conf/nginx/test.conf:17
+		nginx: configuration file /usr/local/openresty/nginx/conf/nginx.conf test failed
+		
+	http://nginx.2469901.n2.nabble.com/Problem-with-in-map-regex-matching-td7587000.html
+	
+issue 2
+	regex not working
