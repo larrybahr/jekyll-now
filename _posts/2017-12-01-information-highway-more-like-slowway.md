@@ -5,7 +5,7 @@ title: Information Highway, More Like Slowway
 It has happened to all of us. You are driving down the Highway going the speed limit (or maybe a lot faster) when you come up on a slow down. You try to look ahead to see what is going on, but you cannot see anything. After 15 minutes, traffic finally picks up. But wait! I did not see anything causing the slow down! So why was traffic so slow? This is the problem I was running into after a new production web server was serving content at dial up speeds despite it working flawlessly in the lab. This article will walk through an overview of the process I took to find the slow down. 
 
 # Brief Background
-After weeks of develupment on a new proxy for our webserver, it was time for it to move to production. I exported the virtual machine and send the file to IT to be imported on one of the production servers. The next day I was informed by my suppervisor that the new proxy was unusably slow! As most programmers would do, I assumed that it could not be my code and explained I had a working example in the develupment lab. After a quick demo my supervisor was covinced it was not our issue and email IT asking them to fix the networking issue. With in a hour he got a reply stating that a diagnostic was ran and found no issues on their end so it must be our fault. So now our team was in the middle of the blame game with the clock ticking down to the new proxy launch date. We did not have time to argue. We needed to pin point the issue as much as possible and provide indisputable evidence!
+After weeks of develupment on a new proxy for our webserver, it was time for it to move to production. I exported the virtual machine and send the file to IT to be imported on one of the production servers. The next day I was informed by my suppervisor that the new proxy was unusably slow! As most programmers would do, I assumed that it could not be my code and explained I had a working example in the develupment lab. After a quick demo my supervisor was covinced it was not our issue and emailed IT asking them to fix the networking issue. With in a hour he got a reply stating that a diagnostic was ran and found no issues on their end so it must be our fault. So now our team was in the middle of the blame game with the clock ticking down to the new proxy launch date. We did not have time to argue. We needed to pin point the issue as much as possible and provide indisputable evidence!
 
 Here is a general map of the setup:
 
@@ -58,7 +58,7 @@ iperf -c r7601246.rva.reyrey.net -p 6284 -t 60
 While far from great, 1.3 Mbits/sec should be plenty for my sub 500kb total file size. I decided this was not my current issue and to move on to the next test after looking at these results and making a note to talk to managment about increaseing the pipe size.
 
 # Are We There Yet? (Latency)
-The cause of a slow down could also be from drivers quick to slow down, but slow to speed back up (aka network latency). Ping is usually the perfect tool for the job, but our VPN only had port 6284 with TCP open so sockperf to the rescue.
+The cause of a slow down could also be from drivers quick to slow down, but slow to speed back up (aka network latency). Ping is usually the perfect tool for the job, but our VPN only had TCP port 6284 open. Sockperf to the rescue!
 
 {% highlight shell %}
 # Run on server
@@ -72,5 +72,10 @@ sockperf under-load -i 10.2.10.14 -p 6284 -t 60 --tcp
 
 ![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/sockperf-test.png)
 
+The average latency is ~71 milliseconds with 99.999% of traffic being less than ~109 milliseconds and the lowest latency being ~24 milliseconds. Ideally all traffic would have a maximum latency of 80 milliseconds, but with an average of 71 milliseconds this is hardly the major source of the issue.
+
 # Are We Lost? (Dropped Packet)
+We have all been in the situation were the GPS is tell you to take an exit on the highway, but you are not sure if it is talking about this exit or the one right after so you slow down to buy some time to figure it out. Some times packets can get "lost" and dropped altogether (Thank God I do not get dropped from existence when I get lost!).
+
+ After hours of research and testing a simple network traffic capture proved our inocence. It turned out that IT had an incorect QoS setting somewhere giving our data a low priority.
 packet loss, QoS
