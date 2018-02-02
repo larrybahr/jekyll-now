@@ -75,7 +75,18 @@ sockperf under-load -i 10.2.10.14 -p 6284 -t 60 --tcp
 The average latency is ~71 milliseconds with 99.999% of traffic being less than ~109 milliseconds and the lowest latency being ~24 milliseconds. Ideally all traffic would have a maximum latency of 80 milliseconds, but with an average of 71 milliseconds this is hardly the major source of the issue.
 
 # Are We Lost? (Dropped Packet)
-We have all been in the situation were the GPS is tell you to take an exit on the highway, but you are not sure if it is talking about this exit or the one right after so you slow down to buy some time to figure it out. Some times packets can get "lost" and dropped altogether (Thank God I do not get dropped from existence when I get lost!).
+We have all been in the situation were the GPS is telling you to take an exit on the highway, but you are not sure if it is talking about this exit or the one right after so you slow down to buy some time to figure it out. Some times packets can get "lost" and dropped altogether (Thank God I do not get dropped from existence when I get lost!).
 
- After hours of research and testing a simple network traffic capture proved our inocence. It turned out that IT had an incorect QoS setting somewhere giving our data a low priority.
-packet loss, QoS
+To find if any packets are dropped, I needed a "road map" with the locations of each packet. Fortunately I have just the tool for that, Wireshark! For the sake of length, complexity, and to not duplicate the already abundant quality information on Google; I will not explain how I set the test up, but rather an overview of what the results ment.
+
+My test was simply to request a test image from the server and watch the packet flow.
+
+![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/wireshark-chrome-img-download.png)
+
+The first thing I noticed in the packet capture was that for about one tenth of a second there we were nother but "TCP Dup ACK". This was a sign of packet loss.
+
+![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/wireshark-dup-ack-start.png)
+![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/wireshark-dup-ack.png)
+![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/wireshark-dup-ack-end.png)
+
+ After hours of research and testing a simple network traffic capture proved our inocence. After informing IT about the finding, they were able to quickly relize that they had an incorect QoS setting somewhere giving our data a low priority. And with that issue behind me, it was time to hit the road agian and proceed to my next project.
