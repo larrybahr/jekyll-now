@@ -29,7 +29,7 @@ First thing to do when you are stuck in a traffic jam is pull out Google Maps to
 sar -n DEV 1 # or sar -n ALL 1 100 on CentOs 5
 {% endhighlight %}
 
-![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/sar-test.png)
+![_config.yml]({{ site.baseurl }}/images/posts/2017-12-01-information-highway-more-like-slowway/sar-test.png)
 
 # Pimp My Ride (Computer Hardware)
 After a quick test it appeared that the private proxy server was slowing things down. Knowing that the lab server was also sending traffic through the private proxy server, I knew it was unlikly an issue with the hardware. A quick command quickly confirmed my reservations on blame. NOTE: I also found many other useful commands at https://www.tecmint.com/commands-to-collect-system-and-hardware-information-in-linux/
@@ -38,7 +38,7 @@ After a quick test it appeared that the private proxy server was slowing things 
 lspci
 {% endhighlight %}
 
-![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/hardware-test.png)
+![_config.yml]({{ site.baseurl }}/images/posts/2017-12-01-information-highway-more-like-slowway/hardware-test.png)
 
 At this point I had found the area the slow down was in and confirmed that the servers on either side were capable higher speed transfers. That means the only culprit left is the VPN. But what exaclty is going wrong?
 
@@ -53,7 +53,7 @@ iperf -s -p 6284
 iperf -c r7601246.rva.reyrey.net -p 6284 -t 60
 {% endhighlight %}
 
-![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/iperf-test.png)
+![_config.yml]({{ site.baseurl }}/images/posts/2017-12-01-information-highway-more-like-slowway/iperf-test.png)
 
 While far from great, 1.3 Mbits/sec should be plenty for my sub 500kb total file size. I decided this was not my current issue and to move on to the next test after looking at these results and making a note to talk to managment about increaseing the pipe size.
 
@@ -70,7 +70,7 @@ sockperf under-load -i 10.2.10.14 -p 6284 -t 60 --tcp
 # sockperf under-load -i 198.19.31.15 -p 6284 -t 20 --tcp --full-log /home/uccop/bahrlarr/jitter.csv
 {% endhighlight %}
 
-![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/sockperf-test.png)
+![_config.yml]({{ site.baseurl }}/images/posts/2017-12-01-information-highway-more-like-slowway/sockperf-test.png)
 
 The average latency is ~71 milliseconds with 99.999% of traffic being less than ~109 milliseconds and the lowest latency being ~24 milliseconds. Ideally all traffic would have a maximum latency of 80 milliseconds, but with an average of 71 milliseconds this is hardly the major source of the issue.
 
@@ -81,12 +81,10 @@ To find if any packets are dropped, I needed a "road map" with the locations of 
 
 My test was simply to request a test image from the server and watch the packet flow.
 
-![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/wireshark-chrome-img-download.png)
+![_config.yml]({{ site.baseurl }}/images/posts/2017-12-01-information-highway-more-like-slowway/wireshark-chrome-img-download.png)
 
 The first thing I noticed in the packet capture was that for about one tenth of a second there we were nother but "TCP Dup ACK". This was a sign of packet loss.
 
-![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/wireshark-dup-ack-start.png)
-![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/wireshark-dup-ack.png)
-![_config.yml]({{ site.baseurl }}/images/posts/information-highway-more-like-slowway/wireshark-dup-ack-end.png)
+![_config.yml]({{ site.baseurl }}/images/posts/2017-12-01-information-highway-more-like-slowway/wireshark-dup-ack.png)
 
  After hours of research and testing a simple network traffic capture proved our inocence. After informing IT about the finding, they were able to quickly relize that they had an incorect QoS setting somewhere giving our data a low priority. And with that issue behind me, it was time to hit the road agian and proceed to my next project.
