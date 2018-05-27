@@ -1,0 +1,31 @@
+how to expand virtualbox disk size
+how to increase virtualbox disk size ubuntu guest
+* Host - Windows 10. Guest - Ubuntu 16.04
+
+* Shutdown VM
+* Run C:\Program Files\Oracle\VirtualBox>VBoxManage.exe modifymedium "PATH_TO_HD" --resize SIZE_IN_MB
+	* See images
+	* expand hd and snapshots
+	* https://askubuntu.com/questions/772279/guest-system-does-not-see-the-updated-disk-size-in-virtualbox
+* Run a live iso of ubuntu and start gparted
+	- Many people said you could use gparted for the whole process, but I could not due to the fact that I was using a lvm file system
+* Create a new partition and save it with Edit > Apply All Operations (Ctrl + Return)
+
+* https://askubuntu.com/questions/967641/ubuntu-on-virtualbox-gparted-not-showing-added-disk-space
+* https://askubuntu.com/questions/844465/extending-disk-size-ubuntu-16-04-virtualbox-vhd-windows-10-host
+	- Run echo 1 > /sys/class/block/sda/device/rescan
+	- pvcreate /dev/sda3
+	- pvdisplay (see screen shot)
+	- vgextend media-vg /dev/sda3
+	- lvdisplay
+	- lvextend -l+100%FREE /dev/media-vg/root
+	- Shutdown the live iso, unmount the disk, and boot the vm
+
+* https://www.youtube.com/watch?v=KW1ScgdCIfs
+	- You can run lvdisplay and see that the new size has been applied, but if you run "df -h" the room is not being used.
+	- To fix this run "resize2fs /dev/media-vg/root"
+	- To check if this worked reboot and run df -h again
+
+
+
+
